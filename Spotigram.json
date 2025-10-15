@@ -1,0 +1,173 @@
+{
+  "name": "Spotigram",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -800,
+        -160
+      ],
+      "id": "87820a66-9da9-443b-be9c-3170e779de45",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3859694f-830a-4033-9ede-c2219ce6fa97",
+              "name": "artist",
+              "value": "={{ $json[\"item\"] ? $json[\"item\"][\"artists\"][0][\"name\"] : \"Sanatçı bilgisi yok\" }}",
+              "type": "string"
+            },
+            {
+              "id": "e8a00dee-af2c-413e-a409-2ad79d21dc24",
+              "name": "track",
+              "value": "={{ $json[\"item\"] ? $json[\"item\"][\"name\"] : \"Şarkı çalmıyor\" }}",
+              "type": "string"
+            },
+            {
+              "id": "fc5fcca4-1189-4b23-bfbe-f0e14ef23586",
+              "name": "album",
+              "value": "={{ $json[\"item\"] ? $json[\"item\"][\"album\"][\"name\"] : \"-\" }}",
+              "type": "string"
+            },
+            {
+              "id": "0aff4e02-8066-46f2-aedb-f17203c3fcfa",
+              "name": "datetime",
+              "value": "={{ new Date().toLocaleString(\"tr-TR\", { timeZone: \"Europe/Istanbul\", weekday: \"long\", hour: \"2-digit\", minute: \"2-digit\", day: \"2-digit\", month: \"2-digit\", year: \"numeric\" }) }}",
+              "type": "string"
+            },
+            {
+              "id": "b8ad0e1a-a54a-4410-96aa-46a00a5dd601",
+              "name": "progress_minute",
+              "value": "={{ $json[\"item\"] ? ($json[\"progress_ms\"] / 60000).toFixed(1) + \" . dakikada çalıyor\" : \"Zaman bilgisi yok\" }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -304,
+        -128
+      ],
+      "id": "6f0a6fbf-0bf8-4201-9933-c21f5be0e6b9",
+      "name": "Format Spotify Data"
+    },
+    {
+      "parameters": {
+        "chatId": "7774354350",
+        "text": "=🎧 *Spotify'da şu an çalan şarkı*  \n🎤 *Sanatçı:* {{$json[\"artist\"]}}  \n🎵 *Şarkı:* {{$json[\"track\"]}}  \n💿 *Albüm:* {{$json[\"album\"]}}  \n🕓 *Zaman:* {{$json[\"datetime\"]}}  \n🎶 *Durum:* {{$json[\"progress_minute\"]}}\n",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -288,
+        96
+      ],
+      "id": "cf9171c8-b8e6-4f71-97c4-f7f5a498ce96",
+      "name": "Send a text message",
+      "webhookId": "47d214e9-fec7-43c7-9443-2443d4e9056e",
+      "credentials": {
+        "telegramApi": {
+          "id": "83xClkJYL3Q2CxFh",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        -560,
+        80
+      ],
+      "id": "f5a2f077-8da8-4d8e-b7d0-14a347f0e4a8",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "operation": "currentlyPlaying"
+      },
+      "type": "n8n-nodes-base.spotify",
+      "typeVersion": 1,
+      "position": [
+        -544,
+        -160
+      ],
+      "id": "9fbfda36-b509-4d0e-ba97-a52016525143",
+      "name": "Get the currently playing track",
+      "credentials": {
+        "spotifyOAuth2Api": {
+          "id": "F6sYEAI8TmyP1eHB",
+          "name": "Spotify account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get the currently playing track",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Spotify Data": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Format Spotify Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get the currently playing track": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "24650511-af3f-4bff-af03-be18dc257cc4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "09e91d3ad203c557deab963e811043963f742e51fbd8d181a43a87784e75dc7f"
+  },
+  "id": "q1mwoSfSQDt6pIxa",
+  "tags": []
+}
